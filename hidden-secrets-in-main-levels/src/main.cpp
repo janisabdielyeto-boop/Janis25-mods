@@ -114,18 +114,16 @@ class $modify(StereoReversePlayHook, PlayLayer) {
         CCNode* m_completeTextNode = nullptr;
     };
 
-    void spawnObjectString(const char* setupStr) {
-        if (auto arr = this->createObjectsFromSetup(setupStr)) {
-            for (int i = 0; i < arr->count(); ++i) {
-                if (auto obj = typeinfo_cast<GameObject*>(arr->objectAtIndex(i))) {
-                    this->addObject(obj);
-                }
-            }
+    void addSingleObject(int objId, float x, float y, int group = 0) {
+        if (auto obj = GameObject::createWithKey(objId)) {
+            obj->setPosition({ x, y });
+            if (group > 0) obj->addToGroup(group);
+            this->addObject(obj);
         }
     }
 
     void configureGroup2ReverseCourse() {
-        this->activateObjectsOnGroup(2);
+        this->toggleGroup(2, true);
         if (!m_fields->m_isOfficialSM) return;
         if (m_objects) {
             for (int i = 0; i < m_objects->count(); ++i) {
@@ -138,7 +136,18 @@ class $modify(StereoReversePlayHook, PlayLayer) {
                 }
             }
         }
-        spawnObjectString("1,35,2,23800,3,135;1,36,2,21600,3,195;1,35,2,19450,3,135;1,141,2,17900,3,225;1,35,2,16200,3,105;1,36,2,14600,3,195;1,35,2,11800,3,105;1,140,2,9600,3,105;1,36,2,7800,3,195;1,35,2,5400,3,105;1,36,2,3200,3,180;1,35,2,1650,3,105;");
+        addSingleObject(35, 23800.0f, 135.0f);
+        addSingleObject(36, 21600.0f, 195.0f);
+        addSingleObject(35, 19450.0f, 135.0f);
+        addSingleObject(141, 17900.0f, 225.0f);
+        addSingleObject(35, 16200.0f, 105.0f);
+        addSingleObject(36, 14600.0f, 195.0f);
+        addSingleObject(35, 11800.0f, 105.0f);
+        addSingleObject(140, 9600.0f, 105.0f);
+        addSingleObject(36, 7800.0f, 195.0f);
+        addSingleObject(35, 5400.0f, 105.0f);
+        addSingleObject(36, 3200.0f, 180.0f);
+        addSingleObject(35, 1650.0f, 105.0f);
     }
 
     bool init(GJGameLevel* level, bool useReplay) {
@@ -161,7 +170,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
             }
         }
         if (m_fields->m_isOfficialSM) {
-            spawnObjectString("1,1594,2,25155,3,165,51,1;1,901,2,25185,3,165,51,2,28,90,29,15,10,0.4;");
+            addSingleObject(1594, 25155.0f, 165.0f, 1);
         }
         return true;
     }
@@ -175,7 +184,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
         m_fields->m_rewindCursor = 0.0f;
         m_fields->m_completeTextNode = nullptr;
         if (m_player1) {
-            m_player1->reverseDirection(false);
+            m_player1->m_isGoingLeft = false;
             m_player1->setFlipX(false);
         }
     }
@@ -272,7 +281,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
                 this->m_gameState.m_cameraPosition.x = std::max(0.0f, f.x - 140.0f);
             } else {
                 m_fields->m_state = 5;
-                m_player1->reverseDirection(true);
+                m_player1->m_isGoingLeft = true;
                 m_player1->setFlipX(true);
             }
             return;
