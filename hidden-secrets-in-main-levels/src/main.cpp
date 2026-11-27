@@ -21,7 +21,7 @@ struct RewindFrame {
 class $modify(ReverseOrbHook, GJBaseGameLayer) {
     void toggleGroup(int group, bool activate) {
         GJBaseGameLayer::toggleGroup(group, activate);
-        if (group == 1) {
+        if (group == 1 || group == 4) {
             g_orbGroup1Clicked = true;
         }
     }
@@ -98,6 +98,7 @@ public:
 class $modify(StereoReversePlayHook, PlayLayer) {
     struct Fields {
         bool m_isStereoMadness = false;
+        int m_activeLevelId = 0;
         std::vector<RewindFrame> m_history;
         int m_state = 0; // 0 = normal/enregistrement, 1 = attente 1s apres LEVEL COMPLETE, 2 = popup ouverte, 3 = LEVEL COMPLETE retrecit, 4 = rembobinage complet, 5 = sortie finale
         float m_timer = 0.0f;
@@ -254,7 +255,8 @@ class $modify(StereoReversePlayHook, PlayLayer) {
                 m_player1->setVisible(true);
                 m_player1->setFlipX(true); // Le joueur fixe la gauche quand il ressort du mur !
                 if (auto fmod = FMODAudioEngine::sharedEngine()) {
-                    fmod->playMusic("01_StereoMadness_rev.mp3"_spr, false, 0.0f, 0);
+                    const char* revTrack = (m_fields->m_activeLevelId == 4) ? "04_DryOut_rev.mp3"_spr : "01_StereoMadness_rev.mp3"_spr;
+                    fmod->playMusic(revTrack, false, 0.0f, 0);
                     unsigned int endMS = m_fields->m_history.empty() ? 0 : m_fields->m_history.back().musicMS;
                     unsigned int totalMS = fmod->getMusicLengthMS(0);
                     if (totalMS > endMS) {
