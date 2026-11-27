@@ -116,7 +116,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
 
     void addSingleObject(int objId, float x, float y, int group = 0) {
         std::string str = fmt::format("1,{},2,{},3,{}{};", objId, x, y, group > 0 ? fmt::format(",51,{}", group) : "");
-        if (auto objs = GameObject::objectsFromString(str, true)) {
+        if (auto objs = GJBaseGameLayer::createObjectsFromSetup(str)) {
             for (int i = 0; i < objs->count(); ++i) {
                 if (auto obj = typeinfo_cast<GameObject*>(objs->objectAtIndex(i))) {
                     this->addObject(obj);
