@@ -1,0 +1,7 @@
+**/build/
+**/.geode/
+*.geode
+*.mp3
+*.ogg
+*.user
+.vs/

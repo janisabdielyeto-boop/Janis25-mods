@@ -1,0 +1,14 @@
+{
+    "geode":  "6.0.0",
+    "gd":  {
+               "win":  "2.2091"
+           },
+    "id":  "janis25.new-gamemodes-animations",
+    "name":  "New Gamemodes Animations",
+    "version":  "v1.0.0",
+    "developer":  "Janis25",
+    "description":  "Adds more gamemodes animations.",
+    "dependencies":  {
+                         "geode.node-ids":  "\u003e=v1.24.0-beta.1"
+                     }
+}

@@ -1,0 +1,20 @@
+{
+    "geode":  "6.0.0",
+    "gd":  {
+               "win":  "2.2091"
+           },
+    "id":  "janis25.secrets_in_main_levels",
+    "name":  "Hidden Secrets in Main Levels",
+    "version":  "v1.0.0",
+    "developer":  "Janis25",
+    "description":  "Uncover hidden secrets across all 22 official Geometry Dash levels!",
+    "dependencies":  {
+                         "geode.node-ids":  "\u003e=v1.24.0-beta.1"
+                     },
+    "resources":  {
+                      "files":  [
+                                    "resources/*.mp3",
+                                    "resources/*.ogg"
+                                ]
+                  }
+}
