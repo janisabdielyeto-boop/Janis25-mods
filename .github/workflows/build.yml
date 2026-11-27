@@ -1,0 +1,24 @@
+name: Build Geode Mods
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build ${{ matrix.mod }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mod:
+          - hidden-secrets-in-main-levels
+          - new-gamemodes-animations
+    steps:
+      - uses: actions/checkout@v4
+      - uses: geode-sdk/build-geode-mod@main
+        with:
+          platform: win
+          root: ${{ matrix.mod }}
