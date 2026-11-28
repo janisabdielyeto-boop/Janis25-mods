@@ -131,35 +131,15 @@ class $modify(StereoReversePlayHook, PlayLayer) {
     }
 
     bool init(GJGameLevel* level, bool useReplay) {
-        if (level && (level->m_levelID == 1 || std::string(level->m_levelName) == "Stereo Madness")) {
-            std::string lvlStr = level->m_levelString;
-            if (!lvlStr.empty() && lvlStr.find("1,1594,2,25155") == std::string::npos) {
-                lvlStr += ";1,1594,2,25155,3,165,51,1;"
-                          "1,35,2,23800,3,135;"
-                          "1,36,2,21600,3,195;"
-                          "1,35,2,19450,3,135;"
-                          "1,141,2,17900,3,225;"
-                          "1,35,2,16200,3,105;"
-                          "1,36,2,14600,3,195;"
-                          "1,35,2,11800,3,105;"
-                          "1,140,2,9600,3,105;"
-                          "1,36,2,7800,3,195;"
-                          "1,35,2,5400,3,105;"
-                          "1,36,2,3200,3,180;"
-                          "1,35,2,1650,3,105;";
-                level->m_levelString = lvlStr;
-            }
-        }
+
         if (!PlayLayer::init(level, useReplay)) return false;
         if (!level) return true;
         std::string name = level->m_levelName;
-        bool isOfficialSM = (level->m_levelID == 1 || name == "Stereo Madness");
-        bool isCustomSM = (name == "Secret Madness");
-        bool isDryOut = (level->m_levelID == 4 || name == "Dry Out");
-        if (isOfficialSM || isCustomSM || isDryOut) {
+        bool isDryOut = (level->m_levelID == 4 || name == "Dry Out" || name == "Secret Dry Out");
+        if (isDryOut) {
             m_fields->m_isReverseEligible = true;
-            m_fields->m_isOfficialSM = isOfficialSM && !isCustomSM;
-            m_fields->m_activeLevelId = isDryOut ? 4 : 1;
+            m_fields->m_isOfficialSM = false;
+            m_fields->m_activeLevelId = 4;
         }
         if (m_objects) {
             for (int i = 0; i < m_objects->count(); ++i) {
