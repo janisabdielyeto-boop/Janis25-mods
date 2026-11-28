@@ -168,27 +168,33 @@ class $modify(StereoReversePlayHook, PlayLayer) {
 
     void resetLevel() { resetRewindState(); PlayLayer::resetLevel(); }
     void onQuit() { resetRewindState(); PlayLayer::onQuit(); }
-    void showCompleteText() {
-        if (g_orbGroup1Clicked && m_fields->m_isReverseEligible) {
-            PlayLayer::showCompleteText();
-            m_fields->m_state = 1;
-            m_fields->m_timer = 1.0f;
-            if (auto children = this->getChildren()) {
-                for (int i = children->count() - 1; i >= 0; --i) {
-                    auto node = static_cast<CCNode*>(children->objectAtIndex(i));
-                    if (node && node->getZOrder() >= 10 && node != m_player1) {
-                        m_fields->m_completeTextNode = node;
-                        break;
-                    }
+    void triggerReverseSequence() {
+        if (m_fields->m_state != 0) return;
+        m_fields->m_state = 1;
+        m_fields->m_timer = 1.0f;
+        if (auto children = this->getChildren()) {
+            for (int i = children->count() - 1; i >= 0; --i) {
+                auto node = static_cast<CCNode*>(children->objectAtIndex(i));
+                if (node && node->getZOrder() >= 10 && node != m_player1) {
+                    m_fields->m_completeTextNode = node;
+                    break;
                 }
             }
-            return;
         }
+    }
+
+    void showCompleteText() {
         PlayLayer::showCompleteText();
+        if (g_orbGroup1Clicked && m_fields->m_isReverseEligible) {
+            triggerReverseSequence();
+        }
     }
 
     void showEndLayer() {
-        if (g_orbGroup1Clicked && m_fields->m_isReverseEligible && m_fields->m_state != 99) return;
+        if (g_orbGroup1Clicked && m_fields->m_isReverseEligible && m_fields->m_state != 99) {
+            triggerReverseSequence();
+            return;
+        }
         PlayLayer::showEndLayer();
     }
 
