@@ -114,17 +114,6 @@ class $modify(StereoReversePlayHook, PlayLayer) {
         CCNode* m_completeTextNode = nullptr;
     };
 
-    void addSingleObject(int objId, float x, float y, int group = 0) {
-        std::string str = fmt::format("1,{},2,{},3,{}{};", objId, x, y, group > 0 ? fmt::format(",51,{}", group) : "");
-        if (auto objs = this->processCreateObjectsFromSetup(str)) {
-            for (int i = 0; i < objs->count(); ++i) {
-                if (auto obj = typeinfo_cast<GameObject*>(objs->objectAtIndex(i))) {
-                    this->addObject(obj);
-                }
-            }
-        }
-    }
-
     void configureGroup2ReverseCourse() {
         this->toggleGroup(2, true);
         if (!m_fields->m_isOfficialSM) return;
@@ -139,21 +128,28 @@ class $modify(StereoReversePlayHook, PlayLayer) {
                 }
             }
         }
-        addSingleObject(35, 23800.0f, 135.0f);
-        addSingleObject(36, 21600.0f, 195.0f);
-        addSingleObject(35, 19450.0f, 135.0f);
-        addSingleObject(141, 17900.0f, 225.0f);
-        addSingleObject(35, 16200.0f, 105.0f);
-        addSingleObject(36, 14600.0f, 195.0f);
-        addSingleObject(35, 11800.0f, 105.0f);
-        addSingleObject(140, 9600.0f, 105.0f);
-        addSingleObject(36, 7800.0f, 195.0f);
-        addSingleObject(35, 5400.0f, 105.0f);
-        addSingleObject(36, 3200.0f, 180.0f);
-        addSingleObject(35, 1650.0f, 105.0f);
     }
 
     bool init(GJGameLevel* level, bool useReplay) {
+        if (level && (level->m_levelID == 1 || std::string(level->m_levelName) == "Stereo Madness")) {
+            std::string lvlStr = level->m_levelString;
+            if (!lvlStr.empty() && lvlStr.find("1,1594,2,25155") == std::string::npos) {
+                lvlStr += ";1,1594,2,25155,3,165,51,1;"
+                          "1,35,2,23800,3,135;"
+                          "1,36,2,21600,3,195;"
+                          "1,35,2,19450,3,135;"
+                          "1,141,2,17900,3,225;"
+                          "1,35,2,16200,3,105;"
+                          "1,36,2,14600,3,195;"
+                          "1,35,2,11800,3,105;"
+                          "1,140,2,9600,3,105;"
+                          "1,36,2,7800,3,195;"
+                          "1,35,2,5400,3,105;"
+                          "1,36,2,3200,3,180;"
+                          "1,35,2,1650,3,105;";
+                level->m_levelString = lvlStr;
+            }
+        }
         if (!PlayLayer::init(level, useReplay)) return false;
         if (!level) return true;
         std::string name = level->m_levelName;
@@ -172,9 +168,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
                 }
             }
         }
-        if (m_fields->m_isOfficialSM) {
-            addSingleObject(1594, 25155.0f, 165.0f, 1);
-        }
+
         return true;
     }
 
