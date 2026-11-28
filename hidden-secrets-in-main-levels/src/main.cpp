@@ -1,6 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
+#include <Geode/modify/LevelSelectLayer.hpp>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -101,6 +102,28 @@ public:
         return nullptr;
     }
 };
+static int countFoundSecrets() {
+    int count = 0;
+    if (Mod::get()->getSavedValue<bool>("secret_dry_out", false)) count++;
+    return count;
+}
+
+class $modify(SecretsMenuHook, LevelSelectLayer) {
+    bool init(int page) {
+        if (!LevelSelectLayer::init(page)) return false;
+        auto win = CCDirector::sharedDirector()->getWinSize();
+        auto label = CCLabelBMFont::create(
+            fmt::format("Secrets Found: {}/22", countFoundSecrets()).c_str(),
+            "goldFont.fnt"
+        );
+        label->setScale(0.45f);
+        label->setPosition({ win.width * 0.5f, win.height - 20.0f });
+        label->setZOrder(50);
+        this->addChild(label);
+        return true;
+    }
+};
+
 class $modify(StereoReversePlayHook, PlayLayer) {
     struct Fields {
         bool m_isReverseEligible = false;
@@ -199,6 +222,9 @@ class $modify(StereoReversePlayHook, PlayLayer) {
     }
 
     void startFullRewind() {
+        if (m_fields->m_activeLevelId == 4) {
+            Mod::get()->setSavedValue("secret_dry_out", true);
+        }
         m_fields->m_state = 3;
         m_fields->m_timer = 0.35f;
         if (auto fmod = FMODAudioEngine::sharedEngine()) fmod->playEffect("sfx_endStart_02_rev.ogg"_spr);
