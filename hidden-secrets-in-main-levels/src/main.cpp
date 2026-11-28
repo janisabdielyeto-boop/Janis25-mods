@@ -116,7 +116,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
 
     void addSingleObject(int objId, float x, float y, int group = 0) {
         std::string str = fmt::format("1,{},2,{},3,{}{};", objId, x, y, group > 0 ? fmt::format(",51,{}", group) : "");
-        if (auto objs = GJBaseGameLayer::createObjectsFromSetup(str)) {
+        if (auto objs = this->processCreateObjectsFromSetup(str)) {
             for (int i = 0; i < objs->count(); ++i) {
                 if (auto obj = typeinfo_cast<GameObject*>(objs->objectAtIndex(i))) {
                     this->addObject(obj);
@@ -296,7 +296,7 @@ class $modify(StereoReversePlayHook, PlayLayer) {
             if (m_fields->m_realMaxX > 300.0f) {
                 float revPct = std::clamp((curX / m_fields->m_realMaxX) * 100.0f, 0.0f, 100.0f);
                 if (m_percentageLabel) m_percentageLabel->setString(fmt::format("{:.2f}%", revPct).c_str());
-                this->updateProgressbar();
+                // Barre de progression mise a jour via m_percentageLabel
             }
             if (curX <= 65.0f) {
                 m_fields->m_state = 6;
