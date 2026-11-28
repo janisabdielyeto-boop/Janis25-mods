@@ -2,6 +2,7 @@
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
 #include <Geode/modify/LevelSelectLayer.hpp>
+#include <Geode/modify/PauseLayer.hpp>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -107,6 +108,89 @@ static int countFoundSecrets() {
     if (Mod::get()->getSavedValue<bool>("secret_dry_out", false)) count++;
     return count;
 }
+
+class SecretsGuidePopup : public geode::Popup {
+protected:
+    bool init() override {
+        if (!Popup::init(360.0f, 230.0f)) return false;
+        this->setTitle("Secrets Guide & Manual");
+
+        auto win = m_mainLayer->getContentSize();
+        bool foundDryOut = Mod::get()->getSavedValue<bool>("secret_dry_out", false);
+
+        auto subtitle = CCLabelBMFont::create(
+            fmt::format("Unlocked: {}/22 | Click a secret for how to get it:", countFoundSecrets()).c_str(),
+            "chatFont.fnt"
+        );
+        subtitle->setScale(0.62f);
+        subtitle->setPosition({ win.width * 0.5f, win.height - 44.0f });
+        m_mainLayer->addChild(subtitle);
+
+        // Carte cliquable pour le Secret #04 : Dry Out
+        std::string btnText = foundDryOut
+            ? "#04 Dry Out: Reverse Secret [FOUND!]"
+            : "#04 Dry Out: Reverse Secret [LOCKED]";
+        auto spr = ButtonSprite::create(
+            btnText.c_str(),
+            280, true, "bigFont.fnt",
+            foundDryOut ? "GJ_button_01.png" : "GJ_button_04.png",
+            32.0f, 0.48f
+        );
+        auto item = CCMenuItemSpriteExtra::create(spr, this, menu_selector(SecretsGuidePopup::onDryOutGuide));
+        auto menu = CCMenu::createWithItem(item);
+        menu->setPosition({ win.width * 0.5f, win.height * 0.54f });
+        m_mainLayer->addChild(menu);
+
+        auto soonLbl = CCLabelBMFont::create("More main level secrets coming soon...", "goldFont.fnt");
+        soonLbl->setScale(0.38f);
+        soonLbl->setPosition({ win.width * 0.5f, 42.0f });
+        m_mainLayer->addChild(soonLbl);
+
+        return true;
+    }
+
+    void onDryOutGuide(CCObject*) {
+        FLAlertLayer::create(
+            "Manual: #04 Dry Out Reverse",
+            "<cy>What is it?</c>\nTriggers a full <cr>Reverse Mode</c> of Dry Out with reversed music (<co>04_DryOut_rev.mp3</c>) and backwards gameplay!\n\n"
+            "<cg>How to get it:</c>\n"
+            "1. Near the end of <cy>Dry Out</c> (or <cy>Secret Out</c>), click the hidden <cp>Toggle Orb (Group 1)</c>.\n"
+            "2. Cross the finish wall normally.\n"
+            "3. Wait 1s after <cg>LEVEL COMPLETE!</c> and click <cg>YES</c> on the Reverse Secret popup!",
+            "Got it!"
+        )->show();
+    }
+
+public:
+    static SecretsGuidePopup* create() {
+        auto ret = new SecretsGuidePopup();
+        if (ret && ret->init()) {
+            ret->autorelease();
+            return ret;
+        }
+        delete ret;
+        return nullptr;
+    }
+};
+
+class $modify(SecretsPauseHook, PauseLayer) {
+    void customSetup() {
+        PauseLayer::customSetup();
+        auto win = CCDirector::sharedDirector()->getWinSize();
+        auto spr = ButtonSprite::create("Secrets", 70, true, "goldFont.fnt", "GJ_button_05.png", 26.0f, 0.55f);
+        auto btn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(SecretsPauseHook::onOpenSecrets));
+        auto menu = CCMenu::createWithItem(btn);
+        menu->setPosition({ 56.0f, win.height - 95.0f });
+        menu->setZOrder(100);
+        this->addChild(menu);
+    }
+
+    void onOpenSecrets(CCObject*) {
+        if (auto pop = SecretsGuidePopup::create()) {
+            pop->show();
+        }
+    }
+};
 
 class $modify(SecretsMenuHook, LevelSelectLayer) {
     bool init(int page) {
